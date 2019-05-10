@@ -43,6 +43,11 @@ def delete_record(record):
     conn.close()
 
 
+@get('/')
+def main():
+    return "hello world"
+
+
 @get('/week/<wk>')
 def week():
     ''' URL(week/String) -> list of records
