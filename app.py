@@ -75,7 +75,8 @@ def delete(name):
 # create_table()
 
 
-if os.environ.get('APP_LOCATION') == 'heroku':
-    run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
-else:
-    run(host='localhost', port=8080, debug=True, reloader=True)
+if __name__ == '__main__':
+    run(host='0.0.0.0', port=8000, debug=True, reloader=True)
+
+# this is the hook for Gunicorn to run Bottle
+app = bottle.default_app()
