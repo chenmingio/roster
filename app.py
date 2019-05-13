@@ -46,11 +46,26 @@ def delete_record(record):
     conn.close()
 
 
-def search_by_week(year, week):
+def search_record(day):
     ''' searh sql records whose year and week number meet the requirment'''
+    print(day)
     conn = sqlite3.connect('roster.db')
     c = conn.cursor()
-    query = f"SELECT * FROM records WHERE strftime('%Y', date)='{year}' AND strftime('%W', date)='{week}'"
+    query = f'''
+    SELECT n.name as Name, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday
+    FROM names n
+    LEFT JOIN
+    (SELECT name,
+        CASE date WHEN '{day}' THEN location ELSE NULL END Sunday,
+        CASE date WHEN date('day','1 day') THEN location ELSE NULL END Monday,
+        CASE date WHEN date('day','2 day') THEN location ELSE NULL END Tuesday,
+        CASE date WHEN date('day','3 day') THEN location ELSE NULL END Wednesday,
+        CASE date WHEN date('day','4 day') THEN location ELSE NULL END Thursday,
+        CASE date WHEN date('day','5 day') THEN location ELSE NULL END Friday,
+        CASE date WHEN date('day','6 day') THEN location ELSE NULL END Saturday
+    FROM records) r
+    ON r.name = n.name;
+    '''
     c.execute(query)
 
     result = c.fetchall()
@@ -70,14 +85,11 @@ def main():
 
 @get('/day/<iso_date>')
 def week(iso_date):
-    ''' URL(week/String) -> list of records
+    ''' ISODate(yyyy-mm-dd) -> list of records
     produce the list of records within the given day + 7day
     example: 2019-01-01 -> List of records between 2019-01-01 and 2019-01-07'''
-    first_day = datetime.datetime.fromisoformat(iso_date)
-
-    days = [((first_day + datetime.timedelta(days=1) * i).isoformat())[0:10] for i in range(0,7)]
-    print(days)
-    return 'building'
+    results = search_record(iso_date)
+    return results
 
 
 @post('/people/<name>')
