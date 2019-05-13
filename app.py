@@ -1,6 +1,7 @@
 import bottle
 import sqlite3
-import os
+import json
+import datetime
 
 from bottle import get, post, delete, route, run, debug, request, response
 
@@ -21,7 +22,8 @@ def create_table():
     ''' create table for data record'''
     conn = sqlite3.connect('roster.db')
     c = conn.cursor()
-    c.execute("CREATE TABLE records (date TEXT, name VARCHAR, location VARCHAR)")
+    # c.execute("CREATE TABLE records (date TEXT, name VARCHAR, location VARCHAR)")
+    c.execute("CREATE TABLE names (name VARCHAR)")
     conn.commit()
     conn.close()
 
@@ -44,17 +46,38 @@ def delete_record(record):
     conn.close()
 
 
+def search_by_week(year, week):
+    ''' searh sql records whose year and week number meet the requirment'''
+    conn = sqlite3.connect('roster.db')
+    c = conn.cursor()
+    query = f"SELECT * FROM records WHERE strftime('%Y', date)='{year}' AND strftime('%W', date)='{week}'"
+    c.execute(query)
+
+    result = c.fetchall()
+    colume = [key[0] for key in c.description]
+
+    items = [dict(zip(colume, row)) for row in result]
+    return json.dumps(items)
+
+    conn.commit()
+    conn.close()
+
+
 @get('/')
 def main():
     return "hello world"
 
 
-@get('/week/<wk>')
-def week():
+@get('/day/<iso_date>')
+def week(iso_date):
     ''' URL(week/String) -> list of records
-    produce the list of records within the given weeks
-    example: 08 -> List of records which is in week08 of year 2019'''
-    pass
+    produce the list of records within the given day + 7day
+    example: 2019-01-01 -> List of records between 2019-01-01 and 2019-01-07'''
+    first_day = datetime.datetime.fromisoformat(iso_date)
+
+    days = [((first_day + datetime.timedelta(days=1) * i).isoformat())[0:10] for i in range(0,7)]
+    print(days)
+    return 'building'
 
 
 @post('/people/<name>')
@@ -71,9 +94,6 @@ def delete(name):
     ''' delete a record'''
     to_delete = (request.forms.date, request.forms.name)
     delete_record(to_delete)
-
-
-# create_table()
 
 
 if __name__ == '__main__':
