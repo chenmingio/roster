@@ -52,19 +52,23 @@ def search_record(day):
     conn = sqlite3.connect('roster.db')
     c = conn.cursor()
     query = f'''
-    SELECT n.name as Name, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday
-    FROM names n
-    LEFT JOIN
-    (SELECT name,
-        CASE date WHEN '{day}' THEN location ELSE NULL END Sunday,
-        CASE date WHEN date('day','1 day') THEN location ELSE NULL END Monday,
-        CASE date WHEN date('day','2 day') THEN location ELSE NULL END Tuesday,
-        CASE date WHEN date('day','3 day') THEN location ELSE NULL END Wednesday,
-        CASE date WHEN date('day','4 day') THEN location ELSE NULL END Thursday,
-        CASE date WHEN date('day','5 day') THEN location ELSE NULL END Friday,
-        CASE date WHEN date('day','6 day') THEN location ELSE NULL END Saturday
-    FROM records) r
-    ON r.name = n.name;
+SELECT r.name as Name, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday
+FROM names n
+LEFT JOIN
+(SELECT name, group_concat(Sun) as Sunday, group_concat(Mon) as Monday, group_concat(Tue) as Tuesday, group_concat(Wed) as Wednesday, group_concat(Thu) as Thursday, group_concat(Fri) as Friday, group_concat(Sat) as Saturday
+FROM
+(SELECT name,
+CASE date WHEN '{day}' THEN location ELSE NULL END Sun,
+CASE date WHEN date('{day}','1 day') THEN location ELSE NULL END Mon,
+CASE date WHEN date('{day}','2 day') THEN location ELSE NULL END Tue,
+CASE date WHEN date('{day}','3 day') THEN location ELSE NULL END Wed,
+CASE date WHEN date('{day}','4 day') THEN location ELSE NULL END Thu,
+CASE date WHEN date('{day}','5 day') THEN location ELSE NULL END Fri,
+CASE date WHEN date('{day}','6 day') THEN location ELSE NULL END Sat
+FROM records
+WHERE name IS NOT NULL)
+GROUP BY name) r
+ON r.name = n.name;
     '''
     c.execute(query)
 
