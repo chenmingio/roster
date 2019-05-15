@@ -79,11 +79,7 @@ def search_record(day):
 
 @get('/')
 def main():
-    return static_file('index.html', root='./build')
-
-@route('/static/<filename:path>')
-def send_static(filename):
-    return static_file(filename, root='./build/static')
+    return static_file('index.html', root='./')
 
 
 @get('/day/<iso_date>')
