@@ -52,7 +52,7 @@ def search_record(day):
     conn = sqlite3.connect('roster.db')
     c = conn.cursor()
     query = f'''
-    SELECT name, group_concat(Sun) as Sunday, group_concat(Mon) as Monday, group_concat(Tue) as Tuesday, group_concat(Wed) as Wednesday, group_concat(Thu) as Thursday, group_concat(Fri) as Friday, group_concat(Sat) as Saturday
+    SELECT name as Name, group_concat(Sun) as Sunday, group_concat(Mon) as Monday, group_concat(Tue) as Tuesday, group_concat(Wed) as Wednesday, group_concat(Thu) as Thursday, group_concat(Fri) as Friday, group_concat(Sat) as Saturday
     FROM
     (SELECT name,
     CASE date WHEN '{day}' THEN location ELSE NULL END Sun,
