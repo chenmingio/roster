@@ -3,7 +3,7 @@ import sqlite3
 import json
 import datetime
 
-from bottle import get, post, delete, route, run, debug, request, response
+from bottle import get, post, delete, route, run, debug, request, response, static_file
 
 # record the roster situation of a department members under certain week
 
@@ -79,7 +79,11 @@ def search_record(day):
 
 @get('/')
 def main():
-    return "hello world"
+    return static_file('index.html', root='./build')
+
+@route('/static/<filename:path>')
+def send_static(filename):
+    return static_file(filename, root='./build/static')
 
 
 @get('/day/<iso_date>')
