@@ -81,6 +81,10 @@ def search_record(day):
 def main():
     return static_file('index.html', root='./')
 
+@route('/static/<filepath:path>')
+def server_static(filepath):
+    return static_file(filepath, root='./static')
+
 
 @get('/day/<iso_date>')
 def week(iso_date):
