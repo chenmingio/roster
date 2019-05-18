@@ -30,6 +30,7 @@ def create_table():
 
 def insert_record(record):
     ''' insert a record according to given compound data '''
+    print(record)
     conn = sqlite3.connect('roster.db')
     c = conn.cursor()
     c.execute("INSERT INTO records (date, name, location) VALUES (?,?,?)", record)
@@ -68,6 +69,8 @@ def search_record(day):
     c.execute(query)
 
     result = c.fetchall()
+    print(result)
+
     colume = [key[0] for key in c.description]
 
     items = [dict(zip(colume, row)) for row in result]
@@ -98,10 +101,17 @@ def week(iso_date):
 @post('/people/<name>')
 def upsert(name):
     ''' add a record into DB according to request, by trying to delete it if already exists'''
-    delete_record((request.forms.date, request.forms.name))
-    record_data = (request.forms.date, request.forms.name,
-                   request.forms.location)
-    insert_record(record_data)
+    print(request.json)
+
+    date = request.json['date']
+    name = request.json['name']
+    location = request.json['location']
+
+    if name and date:
+
+        delete_record((date, name))
+        record_data = (date, name, location)
+        insert_record(record_data)
 
 
 @delete('/people/<name>')
